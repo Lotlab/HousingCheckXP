@@ -26,9 +26,9 @@ namespace HousingCheck
         public string FcTag { get; }
         public byte[] Tag { get; }
 
-        public HousingLandInfoSign(LandInfoSign sign)
+        public HousingLandInfoSign(LandInfoSign sign, Int64 epoch)
         {
-            Time = DateTimeOffset.FromUnixTimeSeconds(sign.Value.ipc.timestamp).LocalDateTime;
+            Time = DateTimeOffset.FromUnixTimeSeconds(epoch / 1000).LocalDateTime;
             LandIdent = new LandIdent(sign.Value.landIdent);
 
             OwnerID = sign.Value.ownerId;

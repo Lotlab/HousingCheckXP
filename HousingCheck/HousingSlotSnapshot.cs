@@ -141,9 +141,9 @@ namespace HousingCheck
 
         public SortedList<int, HousingItem> HouseList = new SortedList<int, HousingItem>();
 
-        public HousingSlotSnapshot(HousingWardInfo info)
+        public HousingSlotSnapshot(HousingWardInfo info, Int64 epoch)
         {
-            Time = DateTimeOffset.FromUnixTimeSeconds(info.Value.ipc.timestamp).LocalDateTime;
+            Time = DateTimeOffset.FromUnixTimeSeconds(epoch / 1000).LocalDateTime;
             landIdent = new LandIdent(info.Value.landIdent);
 
             var purchaseType = info.Value.purchaseType;

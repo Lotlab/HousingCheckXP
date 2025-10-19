@@ -319,7 +319,7 @@ namespace HousingCheck
                 switch (packet)
                 {
                     case ClientTrigger trigger:
-                        ClientTriggerParser(trigger);
+                        ClientTriggerParser(trigger, epoch);
                         break;
                     default:
                         break;
@@ -341,7 +341,7 @@ namespace HousingCheck
                         {
                             logger.LogDebug("ClientTrigger可能的Opcode为：" + guessOpcode);
                             logger.LogDebug(req.ToString());
-                            if (config.DisableOpcodeCheck) ClientTriggerParser(trigger);
+                            if (config.DisableOpcodeCheck) ClientTriggerParser(trigger, epoch);
                         }
                     }
                 }
@@ -361,13 +361,13 @@ namespace HousingCheck
                 switch (packet)
                 {
                     case HousingWardInfo ward:
-                        WardInfoParser(ward);
+                        WardInfoParser(ward, epoch);
                         break;
                     case LandInfoSign land:
-                        LandInfoParser(land);
+                        LandInfoParser(land, epoch);
                         break;
                     case LandSaleInfo sale:
-                        SaleInfoParser(sale);
+                        SaleInfoParser(sale, epoch);
                         break;
                     default:
                         break;
@@ -386,7 +386,7 @@ namespace HousingCheck
                     if (wardInfo.IsValid())
                     {
                         logger.LogDebug("房屋列表可能的Opcode为：" + guessOpcode);
-                        if (config.DisableOpcodeCheck) WardInfoParser(wardInfo);
+                        if (config.DisableOpcodeCheck) WardInfoParser(wardInfo, epoch);
                         return;
                     }
                 }
@@ -397,7 +397,7 @@ namespace HousingCheck
                     if (sign.IsValid())
                     {
                         logger.LogDebug("房屋门牌可能的Opcode为：" + guessOpcode);
-                        if (config.DisableOpcodeCheck) LandInfoParser(sign);
+                        if (config.DisableOpcodeCheck) LandInfoParser(sign, epoch);
                         return;
                     }
                 }
@@ -409,7 +409,7 @@ namespace HousingCheck
                     {
                         logger.LogDebug("房屋销售信息可能的Opcode为：" + guessOpcode);
                         logger.LogDebug(sale.ToString());
-                        if (config.DisableOpcodeCheck) SaleInfoParser(sale);
+                        if (config.DisableOpcodeCheck) SaleInfoParser(sale, epoch);
                         return;
                     }
                 }
@@ -421,10 +421,10 @@ namespace HousingCheck
             }
         }
 
-        void WardInfoParser(HousingWardInfo info)
+        void WardInfoParser(HousingWardInfo info, Int64 epoch)
         {
             //解析数据包
-            var snapshot = new HousingSlotSnapshot(info);
+            var snapshot = new HousingSlotSnapshot(info, epoch);
 
             var emptyHouses = storage.ProcessSnapshot(snapshot);
             foreach (var house in emptyHouses)
@@ -447,29 +447,29 @@ namespace HousingCheck
             WriteActLog(logStr);
         }
 
-        void LandInfoParser(LandInfoSign sign)
+        void LandInfoParser(LandInfoSign sign, long epoch)
         {
-            var info = new HousingLandInfoSign(sign);
+            var info = new HousingLandInfoSign(sign, epoch);
             storage.ProcessInfoSign(info);
         }
 
-        void SaleInfoParser(LandSaleInfo sale)
+        void SaleInfoParser(LandSaleInfo sale, long epoch)
         {
             logger.LogDebug(sale.ToString());
-            var lottery = storage.ProcessSaleInfo(sale);
+            var lottery = storage.ProcessSaleInfo(sale, epoch);
             if (lottery != null)
             {
                 logger.LogInfo(lottery.ToString());
             }
         }
 
-        void ClientTriggerParser(ClientTrigger trigger)
+        void ClientTriggerParser(ClientTrigger trigger, long epoch)
         {
             if (trigger.Value.commandId != 0x0451) return;
             var req = parser.ParseAsPacket<ClientTriggerLandSaleRequest>(trigger.Value.data);
             logger.LogDebug(req.ToString());
 
-            var lottery = storage.ProcessLandSaleReq(req, GetServerID());
+            var lottery = storage.ProcessLandSaleReq(req, GetServerID(), epoch);
             if (lottery != null)
             {
                 logger.LogInfo(lottery.ToString());

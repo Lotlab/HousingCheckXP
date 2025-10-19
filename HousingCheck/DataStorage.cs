@@ -265,7 +265,7 @@ namespace HousingCheck
 
         readonly object lotteryLock = new object();
 
-        public HousingLotteryInfo ProcessLandSaleReq(ClientTriggerLandSaleRequest req, uint currentServer)
+        public HousingLotteryInfo ProcessLandSaleReq(ClientTriggerLandSaleRequest req, uint currentServer, long epoch)
         {
             lock (lotteryLock)
             {
@@ -274,7 +274,7 @@ namespace HousingCheck
                 {
                     if ((time - lastLotteryInfo.Item2).Duration() <= TimeSpan.FromSeconds(1))
                     {
-                        var info = ProcessLotteryInfo(req, lastLotteryInfo.Item1, currentServer);
+                        var info = ProcessLotteryInfo(req, lastLotteryInfo.Item1, currentServer, epoch);
                         lastLotteryInfo = null;
                         return info;
                     } 
@@ -293,7 +293,7 @@ namespace HousingCheck
             return null;
         }
 
-        public HousingLotteryInfo ProcessSaleInfo(LandSaleInfo info)
+        public HousingLotteryInfo ProcessSaleInfo(LandSaleInfo info, Int64 epoch)
         {
             lock (lotteryLock)
             {
@@ -302,13 +302,13 @@ namespace HousingCheck
                 {
                     if ((time - lastLotteryInfoRequest.Item2).Duration() <= TimeSpan.FromSeconds(1))
                     {
-                        var lotteryInfo = ProcessLotteryInfo(lastLotteryInfoRequest.Item1, info, lastLotteryInfoRequest.Item3);
+                        var lotteryInfo = ProcessLotteryInfo(lastLotteryInfoRequest.Item1, info, lastLotteryInfoRequest.Item3, epoch);
                         lastLotteryInfoRequest = null;
                         return lotteryInfo;
                     }
                     else
                     {
-                        logger.LogDebug($"time: {info.Value.ipc.timestamp}, last: {lastLotteryInfoRequest.Item2}");
+                        logger.LogDebug($"time: {epoch}, last: {lastLotteryInfoRequest.Item2}");
                     }
                     //lastLotteryInfoRequest = null;
                 }
@@ -322,7 +322,7 @@ namespace HousingCheck
             return null;
         }
 
-        HousingLotteryInfo ProcessLotteryInfo(ClientTriggerLandSaleRequest req, LandSaleInfo info, uint serverID)
+        HousingLotteryInfo ProcessLotteryInfo(ClientTriggerLandSaleRequest req, LandSaleInfo info, uint serverID, long epoch)
         {
             // todo: get current server ID
             if (serverID == 0 && lastSnapshot != null) serverID = (uint)lastSnapshot.ServerId;
@@ -335,7 +335,7 @@ namespace HousingCheck
                 worldId = (UInt16)serverID,
             });
 
-            var lotteryInfo = new HousingLotteryInfo(ident, info);
+            var lotteryInfo = new HousingLotteryInfo(ident, info, epoch);
             Lotteries.Add(lotteryInfo);
             LotteryInfoChanged = true;
             LastActionTime = DateTime.Now;

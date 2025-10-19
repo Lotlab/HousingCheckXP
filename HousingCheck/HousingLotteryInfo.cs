@@ -23,11 +23,11 @@ namespace HousingCheck
         public UInt32 Persons { get; }
         public UInt32 Winner { get; }
 
-        public HousingLotteryInfo(LandIdent ident, LandSaleInfo saleInfo)
+        public HousingLotteryInfo(LandIdent ident, LandSaleInfo saleInfo, Int64 epoch)
         {
             LandIdent = ident;
 
-            Time = DateTimeOffset.FromUnixTimeSeconds(saleInfo.Value.ipc.timestamp).LocalDateTime;
+            Time = DateTimeOffset.FromUnixTimeSeconds(epoch / 1000).LocalDateTime;
             PurchaseType = saleInfo.Value.purchase_type;
             RegionType = saleInfo.Value.region_type;
             Status = saleInfo.Value.status;

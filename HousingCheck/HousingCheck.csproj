@@ -3,7 +3,7 @@
     <RootNamespace>HousingCheck</RootNamespace>
     <AssemblyName>HousingCheck</AssemblyName>
     <TargetFramework>net472</TargetFramework>
-    <Version>1.7.5</Version>
+    <Version>1.7.6</Version>
     <Copyright>Copyright ©2021 Bluefissure, Hyperzlib. Copyright ©2021-2023 Lotlab</Copyright>
     <ILMergeDebugInfo>false</ILMergeDebugInfo>
     <Platforms>x64;anycpu</Platforms>
